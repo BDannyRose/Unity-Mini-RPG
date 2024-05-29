@@ -7,7 +7,7 @@ public class LevelSystem : IDataPersistence
 {
     protected EventBus eventBus;
 
-    private float level;
+    private int level;
     private float exp;
     private Func<float> expToNextLevel;
 
@@ -39,7 +39,7 @@ public class LevelSystem : IDataPersistence
     }
 
 
-    public float GetLevelNumber()
+    public int GetLevelNumber()
     {
         return level;
     }

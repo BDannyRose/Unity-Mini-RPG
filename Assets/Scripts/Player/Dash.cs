@@ -29,8 +29,7 @@ public class Dash : MonoBehaviour
         {
             currentDashCooldown -= Time.deltaTime;
 
-            // For some reason Abilities script breaks this if
-            if (currentDashCooldown < 0)
+            if (!canDash && currentDashCooldown < 0)
             {
                 canDash = true;
                 isDashCooldown = false;

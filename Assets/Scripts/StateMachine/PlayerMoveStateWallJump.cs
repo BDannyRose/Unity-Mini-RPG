@@ -50,8 +50,6 @@ public class PlayerMoveStateWallJump : BasePlayerMoveState
         moveDir = stateMachine.moveInput;
         wallJumpTimer -= Time.deltaTime;
 
-        Debug.Log(wallJumpTimer);
-
         if (wallJumpTimer < 0)
         {
             blockStateChange = false;
@@ -92,7 +90,7 @@ public class PlayerMoveStateWallJump : BasePlayerMoveState
 
         wallJumpTimer = wallJumpSO.wallJumpTime;
 
-        eventBus.Invoke(new E_OnWalLJumpFinished());
+        eventBus.Invoke(new E_OnWallJumpFinished());
     }
 
     private void OnLeaveWall(E_OnIsOnWallChanged onIsOnWallChanged)
@@ -101,7 +99,6 @@ public class PlayerMoveStateWallJump : BasePlayerMoveState
 
         if (touchingDirections.IsOnWall == false)
         {
-            Debug.Log("Left wall");
             blockBeforeLeavingWall = false;
         }
     }

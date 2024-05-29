@@ -12,14 +12,15 @@ public class UI_SkillTree : MonoBehaviour
     private List<SkillButton> skillButtons;
 
     protected EventBus eventBus;
-
+    private SkillSystem playerSkills;
 
     private void Start()
     {
         eventBus = ServiceLocator.Current.Get<EventBus>();
+        playerSkills = ServiceLocator.Current.Get<PlayerController>().PlayerSkills;
 
         skillButtons = new List<SkillButton>();
-        SetPlayerSKills(PlayerController.Instance.playerSkills);
+        SetPlayerSKills(playerSkills);
         skillTreeVisual.SetActive(false);
 
         eventBus.Subscribe<E_OnSkillPointsChanged>(UpdateSkillPointsText);
@@ -63,6 +64,7 @@ public class UI_SkillTree : MonoBehaviour
         private Image image;
         private SkillSystem playerSkills;
         private SkillSystem.SkillType skillType;
+        private TooltipWarning tooltipWarning;
 
         public SkillButton(Transform transform, SkillSystem playerSkills, SkillSystem.SkillType skillType)
         {
@@ -70,13 +72,14 @@ public class UI_SkillTree : MonoBehaviour
             this.image = transform.GetComponent<Image>();
             this.playerSkills = playerSkills;
             this.skillType = skillType;
+            tooltipWarning = ServiceLocator.Current.Get<TooltipWarning>();
 
             this.transform.GetComponent<Button>().onClick.AddListener(() =>
             {
                 string warning;
                 if (!playerSkills.TryUnlockSkill(skillType, out warning))
                 {
-                    TooltipWarning.ShowTooltip_Static(() => warning, 2f);
+                    tooltipWarning.ShowTooltip(() => warning, 2f);
                 }
             });
         }

@@ -13,29 +13,15 @@ public class UIManager : MonoBehaviour
 
     protected EventBus eventBus;
 
-    private void Start()
+    private void OnEnable()
     {
         eventBus = ServiceLocator.Current.Get<EventBus>();
         eventBus.Subscribe<E_CharacterHealthChanged>(CharacterHealthChanged);
     }
 
-    private void OnDestroy()
-    {
-        eventBus.Unsubscribe<E_CharacterHealthChanged>(CharacterHealthChanged);
-    }
-
-    private void OnEnable()
-    {
-        //eventBus.Subscribe<E_CharacterHealthChanged>(CharacterHealthChanged);
-        //Events.characterTookDamage += CharacterTookDamage;
-        //Events.characterHealed += CharacterHealed;
-    }
-
     private void OnDisable()
     {
-        //eventBus.Unsubscribe<E_CharacterHealthChanged>(CharacterHealthChanged);
-        //Events.characterTookDamage -= CharacterTookDamage;
-        //Events.characterHealed -= CharacterHealed;
+        eventBus.Unsubscribe<E_CharacterHealthChanged>(CharacterHealthChanged);
     }
 
     public void CharacterHealthChanged(E_CharacterHealthChanged signal)

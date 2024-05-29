@@ -7,9 +7,8 @@ public class ServiceLocatorLoader_Gameplay : MonoBehaviour
     private EventBus eventBus;
 
     [SerializeField] private PlayerController playerController;
-
-    private SkillSystem playerSkills;
-    private LevelSystem levelSystem;
+    [SerializeField] private Tooltip tooltip;
+    [SerializeField] private TooltipWarning tooltipWarning;
 
     private void Awake()
     {
@@ -24,7 +23,10 @@ public class ServiceLocatorLoader_Gameplay : MonoBehaviour
     {
         ServiceLocator.Initialize();
 
-        ServiceLocator.Current.Register<EventBus>(eventBus);
+        ServiceLocator.Current.Register(eventBus);
+        ServiceLocator.Current.Register(playerController);
+        ServiceLocator.Current.Register(tooltip);
+        ServiceLocator.Current.Register(tooltipWarning);
     }
 
     private void Init()

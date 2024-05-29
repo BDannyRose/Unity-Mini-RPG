@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections), typeof(Damageable))]
-public class Knight : MonoBehaviour
+public class Knight : Enemy
 {
     public float walkAcceleration = 50f;
     public float maxWalkSpeed = 3f;

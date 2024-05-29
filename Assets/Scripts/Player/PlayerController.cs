@@ -7,15 +7,14 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody2D), typeof(TouchingDirections), typeof(Damageable))]
-public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
+public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter, IService
 {
-    public static PlayerController Instance;
-
     protected EventBus eventBus;
 
     public PlayerInput playerInput;
-    public SkillSystem playerSkills;
-    public LevelSystem levelSystem;
+
+    public SkillSystem PlayerSkills { get; private set; }
+    public LevelSystem LevelSystem { get; private set; }
 
     public PlayerMoveStateMachine MoveStateMachine { get; private set; }
 
@@ -28,8 +27,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
     public WallClimbSO wallClimbSO;
     public JumpSO jumpSO;
     public WallJumpSO wallJumpSO;
-    
-    private float normalGravity;
 
     private Vector2 moveInput;
 
@@ -37,6 +34,8 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
     Animator animator;
     TouchingDirections touchingDirections;
     Damageable damageable;
+
+    #region Properties
 
     public bool CanMove
     {
@@ -98,6 +97,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
         }
     }
 
+    #endregion Properties
+
+    #region Life cycle
+
     public void Init()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -107,18 +110,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
 
         eventBus = ServiceLocator.Current.Get<EventBus>();
 
-        playerSkills = new SkillSystem();
-        levelSystem = new LevelSystem();
-
-        normalGravity = rb.gravityScale;
+        PlayerSkills = new SkillSystem();
+        LevelSystem = new LevelSystem();
 
         MoveStateMachine = new PlayerMoveStateMachine(this, animator, rb, touchingDirections, damageable);
-
-        if (Instance != null)
-        {
-            Debug.Log("Critical error. More than one PlayerController instances.");
-        }
-        Instance = this;
     }
 
     public void LateInit()
@@ -126,29 +121,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
         eventBus.Subscribe<E_OnSkillUnlocked>(PlayerSkills_OnSkillUnlocked);
         eventBus.Subscribe<E_OnJumpExecute>(OnJumpPerformed);
         eventBus.Subscribe<E_OnWallJumpExecute>(ChangeFacingDirection);
-        eventBus.Subscribe<E_OnWalLJumpFinished>(OnWallJumpFinished);
-    }
-
-    private void PlayerSkills_OnSkillUnlocked(E_OnSkillUnlocked e)
-    {
-        switch (e.skillType)
-        {
-            case SkillSystem.SkillType.MaxHealth1:
-                damageable.SetMaxHealth(damageable.MaxHealth + 50f);
-                break;
-            case SkillSystem.SkillType.MaxHealth2:
-                damageable.SetMaxHealth(damageable.MaxHealth + 50f);
-                break;
-            case SkillSystem.SkillType.MoveSpeed1:
-                walkSO.walkSpeed += 1f;
-                runSO.runSpeed += 1f;
-                break;
-            case SkillSystem.SkillType.MoveSpeed2:
-                walkSO.walkSpeed += 1f;
-                runSO.runSpeed += 1f;
-                airWalkSO.airWalkSpeed += 1f;
-                break;
-        }
+        eventBus.Subscribe<E_OnWallJumpFinished>(OnWallJumpFinished);
     }
 
     private void Update()
@@ -162,6 +135,10 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
 
         animator.SetFloat(AnimationStrings.yVelocity, rb.velocity.y);
     }
+
+    #endregion Life cycle
+
+    #region Player Input
 
     public void OnMove(InputAction.CallbackContext context)
     {
@@ -177,23 +154,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
         {
             IsMoving = false;
         }
-    }
-
-    private void SetFacingDirection(Vector2 moveInput)
-    {
-        if (!IsFacingRight && moveInput.x > 0)
-        {
-            IsFacingRight = true;
-        }
-        else if (IsFacingRight && moveInput.x < 0)
-        {
-            IsFacingRight = false;
-        }
-    }
-
-    private void ChangeFacingDirection(E_OnWallJumpExecute onWallJumpExecute)
-    {
-        IsFacingRight = !IsFacingRight;
     }
 
     public void OnRun(InputAction.CallbackContext context)
@@ -219,16 +179,6 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
         {
             eventBus.Invoke(new E_OnJumpCancelled());
         }
-    }
-
-    private void OnJumpPerformed(E_OnJumpExecute onJumpExecute)
-    {
-        animator.SetTrigger(AnimationStrings.jumpTrigger);
-    }
-
-    private void OnWallJumpFinished(E_OnWalLJumpFinished onWalLJumpFinished)
-    {
-        SetFacingDirection(moveInput);
     }
 
     public void OnAttack(InputAction.CallbackContext context)
@@ -257,7 +207,7 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
 
     public void OnRangedAttack(InputAction.CallbackContext context)
     {
-        if (!playerSkills.IsSkillUnlocked(SkillSystem.SkillType.RangedAttack)) return;
+        if (!PlayerSkills.IsSkillUnlocked(SkillSystem.SkillType.RangedAttack)) return;
 
         if (context.started)
         {
@@ -265,14 +215,9 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
         }
     }
 
-    public void OnHit(float damage, Vector2 knockback)
-    {
-        rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
-    }
-
     public void OnDash(InputAction.CallbackContext context)
     {
-        if (!playerSkills.IsSkillUnlocked(SkillSystem.SkillType.Dash)) return;
+        if (!PlayerSkills.IsSkillUnlocked(SkillSystem.SkillType.Dash)) return;
 
         if (context.performed)
         {
@@ -280,15 +225,86 @@ public class PlayerController : MonoBehaviour, IDataPersistence, ICharacter
         }
     }
 
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            eventBus.Invoke(new E_OnInteractPressed());
+        }
+    }
+
+    #endregion Player Input
+
+    #region Misc
+    public void OnHit(float damage, Vector2 knockback)
+    {
+        rb.velocity = new Vector2(knockback.x, rb.velocity.y + knockback.y);
+    }
+
+    private void SetFacingDirection(Vector2 moveInput)
+    {
+        if (!IsFacingRight && moveInput.x > 0)
+        {
+            IsFacingRight = true;
+        }
+        else if (IsFacingRight && moveInput.x < 0)
+        {
+            IsFacingRight = false;
+        }
+    }
+
+    private void ChangeFacingDirection(E_OnWallJumpExecute onWallJumpExecute)
+    {
+        IsFacingRight = !IsFacingRight;
+    }
+
+    private void PlayerSkills_OnSkillUnlocked(E_OnSkillUnlocked e)
+    {
+        switch (e.skillType)
+        {
+            case SkillSystem.SkillType.MaxHealth1:
+                damageable.SetMaxHealth(damageable.MaxHealth + 50f);
+                break;
+            case SkillSystem.SkillType.MaxHealth2:
+                damageable.SetMaxHealth(damageable.MaxHealth + 50f);
+                break;
+            case SkillSystem.SkillType.MoveSpeed1:
+                walkSO.walkSpeed += 1f;
+                runSO.runSpeed += 1f;
+                break;
+            case SkillSystem.SkillType.MoveSpeed2:
+                walkSO.walkSpeed += 1f;
+                runSO.runSpeed += 1f;
+                airWalkSO.airWalkSpeed += 1f;
+                break;
+        }
+    }
+
+    private void OnJumpPerformed(E_OnJumpExecute onJumpExecute)
+    {
+        animator.SetTrigger(AnimationStrings.jumpTrigger);
+    }
+
+    private void OnWallJumpFinished(E_OnWallJumpFinished onWalLJumpFinished)
+    {
+        SetFacingDirection(moveInput);
+    }
+
+    #endregion Misc
+
+    #region IDataPersistence
+
     public void LoadData(GameData gameData)
     {
-        playerSkills.LoadData(gameData);
-        levelSystem.LoadData(gameData);
+        PlayerSkills.LoadData(gameData);
+        LevelSystem.LoadData(gameData);
     }
 
     public void SaveData(GameData gameData)
     {
-        playerSkills.SaveData(gameData);
-        levelSystem.SaveData(gameData);
+        PlayerSkills.SaveData(gameData);
+        LevelSystem.SaveData(gameData);
     }
+
+    #endregion IDataPersistence
 }

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Skeleton : MonoBehaviour
+public class Skeleton : Enemy
 {
 
     public bool needToBlock;
@@ -41,6 +41,7 @@ public class Skeleton : MonoBehaviour
     Rigidbody2D rb;
     TouchingDirections touchingDirections;
     Damageable damageable;
+    PlayerController playerController;
 
     private enum WalkableDirection { Right, Left };
 
@@ -108,6 +109,7 @@ public class Skeleton : MonoBehaviour
         touchingDirections = GetComponent<TouchingDirections>();
         animator = GetComponent<Animator>();
         damageable = GetComponent<Damageable>();
+        playerController = ServiceLocator.Current.Get<PlayerController>();
     }
 
 
@@ -116,7 +118,7 @@ public class Skeleton : MonoBehaviour
     {
         HasTarget = attackZone.detectedColliders.Count > 0;
 
-        if (HasTarget && PlayerController.Instance.IsAttacking)
+        if (HasTarget && playerController.IsAttacking)
         {
             NeedToBlock = true;
         }

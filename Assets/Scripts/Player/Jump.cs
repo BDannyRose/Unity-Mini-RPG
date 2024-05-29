@@ -6,7 +6,6 @@ public class Jump : MonoBehaviour
 {
     public JumpSO jumpSO;
 
-    private Animator animator;
     private TouchingDirections touchingDirections;
     protected EventBus eventBus;
 
@@ -14,7 +13,6 @@ public class Jump : MonoBehaviour
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
         touchingDirections = GetComponent<TouchingDirections>();
     }
 
@@ -26,6 +24,7 @@ public class Jump : MonoBehaviour
         eventBus.Subscribe<E_OnIsGroundedChanged>(ResetRemainingJumps);
         eventBus.Subscribe<E_OnIsOnWallChanged>(ResetRemainingJumps);
         eventBus.Subscribe<E_OnWallJumpExecute>(AnullRemainingJumps);
+        eventBus.Subscribe<E_OnWallJumpFinished>(ResetRemainingJumps);
     }
 
     private void ProcessJumpPressed(E_OnJumpPressed onJumpPressed)
@@ -52,6 +51,11 @@ public class Jump : MonoBehaviour
         {
             jumpsRemaining = jumpSO.maxJumps;
         }
+    }
+
+    private void ResetRemainingJumps(E_OnWallJumpFinished onWalLJumpFinished)
+    {
+        jumpsRemaining = 1;
     }
 
     private void AnullRemainingJumps(E_OnWallJumpExecute onWallJumpExecute)

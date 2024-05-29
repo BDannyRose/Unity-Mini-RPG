@@ -5,12 +5,14 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(ICharacter))]
 public class Damageable : MonoBehaviour
 {
     public UnityEvent<float, Vector2> damageableHit;
     public UnityEvent onDeath;
 
     Animator animator;
+    ICharacter character;
 
     protected EventBus eventBus;
 
@@ -60,15 +62,15 @@ public class Damageable : MonoBehaviour
         }
         set
         {
-            isAlive = value;
-            animator.SetBool(AnimationStrings.isAlive, value);
-            Debug.Log("isAlive set to " +  value);
-
             if (value == false)
             {
                 eventBus.Invoke(new E_OnExpAdd(50f));
-                onDeath?.Invoke();
+                eventBus.Invoke(new E_OnCharacterDeath(character));
             }
+
+            isAlive = value;
+            animator.SetBool(AnimationStrings.isAlive, value);
+            Debug.Log("isAlive set to " +  value);
         }
     }
 
@@ -99,6 +101,7 @@ public class Damageable : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        character = GetComponent<ICharacter>();
     }
 
     private void Start()

@@ -7,13 +7,20 @@ public class TooltipText : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 {
     public string text;
 
+    private Tooltip tooltip;
+
+    private void Start()
+    {
+        tooltip = ServiceLocator.Current.Get<Tooltip>();
+    }
+
     void IPointerEnterHandler.OnPointerEnter(PointerEventData eventData)
     {
-        Tooltip.ShowTooltip_Static(() => text + "\n<color=#ff0000>Testing color!</color>");
+        tooltip.ShowTooltip(() => text + "\n<color=#ff0000>Testing color!</color>");
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        Tooltip.HideTooltip_Static();
+        tooltip.HideTooltip();
     }
 }

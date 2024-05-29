@@ -893,6 +893,8 @@ GameObject:
   - component: {fileID: 6337490149298213793}
   - component: {fileID: 1950291441035967301}
   - component: {fileID: 5415681628600108050}
+  - component: {fileID: 2106559543173415082}
+  - component: {fileID: 6517765129063179995}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -1024,19 +1026,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerInput: {fileID: 0}
-  isFacingRight: 1
+  dashSO: {fileID: 11400000, guid: ec284d40457f278459826b3acdbb21e0, type: 2}
   walkSO: {fileID: 11400000, guid: cd5b3cd75d6586942b8dbad37acff84e, type: 2}
   runSO: {fileID: 11400000, guid: a2f1daed13896e941a79a07ae60a36a4, type: 2}
-  airWalkSpeed: 3
-  wallSlideSpeed: 1.5
-  jumpImpulse: 10
-  maxJumps: 2
-  wallClimbingSpeed: 5
-  wallJumpPower: {x: 5, y: 7.75}
-  dashSO: {fileID: 11400000, guid: ec284d40457f278459826b3acdbb21e0, type: 2}
+  airWalkSO: {fileID: 11400000, guid: 87665f6579042a74aaf8afd267c652b6, type: 2}
+  wallSlideSO: {fileID: 11400000, guid: 0547eacd12597b946b5cec4380772778, type: 2}
+  wallClimbSO: {fileID: 11400000, guid: 5c75fcfb812c7294fb7b3c8dd368e253, type: 2}
+  jumpSO: {fileID: 11400000, guid: 54339f4f2e6392543837efc08be7776d, type: 2}
+  wallJumpSO: {fileID: 11400000, guid: c9cfa9b008033fe47a2eaab005ee7bfc, type: 2}
   isMoving: 0
-  isAttacking: 0
   isRunning: 0
+  isFacingRight: 1
 --- !u!114 &4162114032422529922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1250,6 +1250,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: f5150be0-5753-4dc4-9bc7-aa8f856f426f
     m_ActionName: Player/Kick[/Keyboard/q]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 9053404227574049333}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 88278c53-ff2a-46c0-b42d-34b61547f63c
+    m_ActionName: Player/Interact[/Keyboard/t]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1406,8 +1422,38 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87e379f57db07d3449fb422a9a187f13, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dash: {fileID: 2106559543173415082}
   dashImage: {fileID: 0}
   player: {fileID: 5013293039557781128}
+--- !u!114 &2106559543173415082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5013293039557781128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 649e5258081e0f54ea074d0c431e8df9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dashSO: {fileID: 11400000, guid: ec284d40457f278459826b3acdbb21e0, type: 2}
+  isDashCooldown: 0
+  dashCooldown: 0
+  currentDashCooldown: 0
+--- !u!114 &6517765129063179995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5013293039557781128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b3adce7908fe6d4b951694edfe58061, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpSO: {fileID: 11400000, guid: 54339f4f2e6392543837efc08be7776d, type: 2}
 --- !u!1 &5808057556746075852
 GameObject:
   m_ObjectHideFlags: 0

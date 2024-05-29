@@ -6,10 +6,8 @@ using UnityEngine;
 using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
-public class TooltipWarning : MonoBehaviour
+public class TooltipWarning : MonoBehaviour, IService
 {
-    public static TooltipWarning Instance;
-
     [SerializeField]
     private RectTransform canvasRectTransform;
     private float showTimer;
@@ -24,8 +22,6 @@ public class TooltipWarning : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-
         tooltipText = transform.Find("Text").GetComponent<TextMeshProUGUI>();
         backgroundRectTransform = transform.Find("Background").GetComponent<RectTransform>();
         backgroundImage = transform.Find("Background").GetComponent<Image>();
@@ -87,12 +83,7 @@ public class TooltipWarning : MonoBehaviour
         }
     }
 
-    private void ShowTooltip(string tooltipString, float showTimerMax = 2f)
-    {
-        ShowTooltip(() => tooltipString, showTimerMax);
-    }
-
-    private void ShowTooltip(System.Func<string> getTooltipStringFunc, float showTimerMax = 2f)
+    public void ShowTooltip(System.Func<string> getTooltipStringFunc, float showTimerMax = 2f)
     {
         gameObject.SetActive(true);
         // To make the tooltip always be on top of other UI elements
@@ -102,6 +93,11 @@ public class TooltipWarning : MonoBehaviour
         flashTimer = 0;
         flashState = 0;
         SetText(getTooltipStringFunc()); 
+    }
+
+    public void HideTooltip()
+    {
+        gameObject.SetActive(false);
     }
 
     private void SetText(string tooltipString)
@@ -114,20 +110,4 @@ public class TooltipWarning : MonoBehaviour
         
         backgroundRectTransform.sizeDelta = textSize + paddingSize;
     }
-
-    private void HideTooltip()
-    {
-        gameObject.SetActive(false);
-    }
-
-    public static void ShowTooltip_Static(System.Func<string> getTooltipStringFunc, float showTimerMax = 2f)
-    {
-        Instance.ShowTooltip(getTooltipStringFunc);
-    }
-
-    public static void HideTooltip_Static()
-    {
-        Instance.HideTooltip();
-    }
-
 }

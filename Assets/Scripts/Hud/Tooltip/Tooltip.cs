@@ -6,10 +6,8 @@ using UnityEngine;
 using UnityEngine.PlayerLoop;
 using UnityEngine.UI;
 
-public class Tooltip : MonoBehaviour
+public class Tooltip : MonoBehaviour, IService
 {
-    public static Tooltip Instance;
-
     [SerializeField]
     private RectTransform canvasRectTransform;
 
@@ -20,8 +18,6 @@ public class Tooltip : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-
         tooltipText = transform.Find("Text").GetComponent<TextMeshProUGUI>();
         backgroundRectTransform = transform.Find("Background").GetComponent<RectTransform>();
         tooltipRectTransform = GetComponent<RectTransform>();
@@ -52,18 +48,18 @@ public class Tooltip : MonoBehaviour
         tooltipRectTransform.anchoredPosition = anchoredPosition;
     }
 
-    private void ShowTooltip(string tooltipString)
-    {
-        ShowTooltip(() => tooltipString);
-    }
-
-    private void ShowTooltip(System.Func<string> getTooltipStringFunc)
+    public void ShowTooltip(System.Func<string> getTooltipStringFunc)
     {
         gameObject.SetActive(true);
         // To make the tooltip always be on top of other UI elements
         transform.SetAsLastSibling();
         this.getTooltipStringFunc = getTooltipStringFunc;
         SetText(getTooltipStringFunc()); 
+    }
+
+    public void HideTooltip()
+    {
+        gameObject.SetActive(false);
     }
 
     private void SetText(string tooltipString)
@@ -76,20 +72,4 @@ public class Tooltip : MonoBehaviour
 
         backgroundRectTransform.sizeDelta = textSize + paddingSize;
     }
-
-    private void HideTooltip()
-    {
-        gameObject.SetActive(false);
-    }
-
-    public static void ShowTooltip_Static(System.Func<string> getTooltipStringFunc)
-    {
-        Instance.ShowTooltip(getTooltipStringFunc);
-    }
-
-    public static void HideTooltip_Static()
-    {
-        Instance.HideTooltip();
-    }
-
 }

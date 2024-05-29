@@ -10,7 +10,7 @@ public class GameData
     public int skillPoints;
 
     public float exp;
-    public float level;
+    public int level;
 
     public GameData()
     {
